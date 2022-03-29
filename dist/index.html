@@ -5,7 +5,11 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
-  <script src="./main.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="./main.js" defer></script>
   <title>Todo List</title>
 </head>
 <body>
@@ -15,19 +19,58 @@
   <div class="main-container">
     <div class="sidebar">
       <ul>
-        <li>Home</li>
-        <li>Today</li>
-        <li>Week</li>
-        <li>Add project</li>
+        <li class="home">Home</li>
+        <li class="today">Today</li>
+        <li class="week">Week</li>
+        <li class="projects-section">Projects</li>
+        <li class="add-projects-button">Add project</li>
       </ul>
-      <div class="add-button">
-         <button>+</button>
+      <div class="add-todo-container">
+         <button type="button" class="add-todo-button">+</button>
       </div>
     </div>
-    <div class="content"></div>
+    <div class="main-content">
+      <div class="todo-container">
+      </div>
+      <div class="project-form-container">
+        <form action="" class="project-form">
+          <h3>Project</h3>
+          <label for="project-name">Title:</label>
+          <input type="text" name="project-name" id="project-name" required>
+          <div class="buttons">
+            <button type="button" id="submit-project">&#10004</button>
+            <button type="button" id="cancel-project">&#10006</button>
+          </div>
+        </form>
+      </div>
+      <div class="todo-form-container" form-container>
+        <form class="todo-form" action="" >
+          <h3>Todo</h3>
+          <label for="title">Title:</label>
+          <input type="text" name="title" id="title" required />
+          <label for="dueDate">Due date:</label>
+          <input type="date" name="dueDate" id="dueDate" required />
+          <label for="priority">Priority:</label>
+          <select name="priority" id="priority">
+            <option disabled selected value> -- select an option -- </option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select >
+          <label for="projects-list">Projects:</label>
+          <select name="projects-list" id="project-list">
+          <option disabled selceted value> select option if available</option>
+        </select>
+          <div class="buttons">
+            <button type="button" id="submit-todo">&#10004</button>
+            <button type="button" id="cancel-todo">&#10006</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
   <footer>
-    <p>Todo List project from The Odin project by Luca Cardillo</p>
+    <p>Todo List from The Odin project by Luca Cardillo</p>
   </footer>
 </body>
 </html>
