@@ -1,7 +1,7 @@
 const LOCAL_STORAGE_PROJECT_KEY = 'task.project';
 export let projectslist = JSON.parse(localStorage.getItem(LOCAL_STORAGE_PROJECT_KEY)) || [];
 
-
+const errorMessage = document.querySelector('.required2');
 const projects = document.querySelector('.projects-section');
 const cancelButton = document.querySelector('#cancel-project');
 const submitButton = document.querySelector('#submit-project');
@@ -10,7 +10,7 @@ const todosContainer = document.querySelector('.todo-container');
 const projectForm = document.querySelector('.project-form-container');
 const addProjectButton = document.querySelector('.add-projects-button');
 
-function Project (id, name) {
+function Project(id, name) {
   this._id = id;
   this._name = name;
   this._list = [];
@@ -20,7 +20,11 @@ function addProject() {
   const name = document.querySelector('#project-name');
   const id = Date.now().toString();
   
-  if (name.value === '') return;
+  if ( name.value === '') {
+    errorMessage.textContent = 'required';
+    return};
+    errorMessage.textContent = '';
+
 
   for (let i = 0; i < projectslist.length; i++) {
     if (projectslist[i]._name === name.value) return;
@@ -51,7 +55,6 @@ function removeProject(e) {
   }
 }
 
-
 function showProjects() {
   removeChild(todosContainer)
 
@@ -74,6 +77,7 @@ function showProjects() {
     buttonShowtodoInProjectContainer.textContent = '⌄';
     
     deleteProject.dataset.listId = projects._id;
+    //add '--' at the and for showTodoInProjectContainer
     todoInProjectContainer.dataset.listId = `${projects._id}--`;
     buttonShowtodoInProjectContainer.dataset.listId = projects._id;
 
@@ -96,17 +100,16 @@ function removeChild(element) {
     element.removeChild(element.firstChild)
   }
 }
-
+//function for show the tod in the projects
 function showtodoInProjectContainer (e) {
 
     const id = e.target.getAttribute('data-list-id');
     const todoInProjectContainer = document.querySelector(`[data-list-id="${id}--"] `);
-
+    //if when the button is clicked todo in the project is already visible, hide them
     if (e.target.className === 'show-todo active') {
 
       removeChild(todoInProjectContainer);
       e.target.classList.remove('active');
-
 
     } else if (e.target.className === 'show-todo') { 
   
@@ -147,5 +150,4 @@ addProjectButton.addEventListener('click', () => {
   projectForm.classList.remove('remove-form');
   projectForm.classList.add('active-form');
   todoForm.classList.add('remove-form');
- 
 })

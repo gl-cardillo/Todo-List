@@ -5,9 +5,17 @@ import { projectslist, saveProject } from './createProject';
 const LOCAL_STORAGE_LIST_KEY = 'task.list';
 export let lists = JSON.parse(localStorage.getItem(LOCAL_STORAGE_LIST_KEY)) || [];
 
+//form input
+const title = document.querySelector('#title');
+const dueDate = document.querySelector('#dueDate');
+const priority = document.querySelector('#priority');
+const project = document.querySelector('#project-list');
+//sidebar
 const week = document.querySelector('.week');
 const home = document.querySelector('.home');
 const today = document.querySelector('.today');
+
+const errorMessage = document.querySelector('.required1');
 const cancelTodo = document.querySelector('#cancel-todo');
 const submitTodo = document.querySelector('#submit-todo');
 const projects = document.querySelector('.projects-section');
@@ -22,6 +30,7 @@ function  Todo(id, title, dueDate, priority )  {
   this._title = title;
   this._dueDate = dueDate;
   this._priority = priority;
+  this._projectId = null;
 
 }
 
@@ -40,20 +49,25 @@ function menageForm() {
 }
 
 //add new Todo
-
 function addTodo()  {
 
-  const title = document.querySelector('#title');
-  const dueDate = document.querySelector('#dueDate');
-  const priority = document.querySelector('#priority');
-  const project = document.querySelector('#project-list');
   const id = Date.now().toString();
 
-  if ( title.value === '' || dueDate.value === '') return;
+  if ( title.value === '') {
+    errorMessage.textContent = 'required';
+    console.log(errorMessage)
+    return
+  }
+    errorMessage.textContent = '';
+
 
   for (let i = 0; i < lists.length; i++) {
-    if (lists[i]._title === title.value) return;
+    if (lists[i]._title === title.value) {
+      errorMessage.textContent = 'title already used';
+      return;
+    }
   }
+  errorMessage.textContent = '';
 
   const newTodo = new Todo(id, title.value,  dueDate.value, priority.value);
 
@@ -63,6 +77,7 @@ function addTodo()  {
     for (let i = 0; i< projectslist.length; i++) {
       if (projectslist[i]._name === project.value) { 
         projectslist[i]._list.push(newTodo);
+        newTodo._projectId = projectslist[i]._id; 
         break;
       }
     }
@@ -80,10 +95,20 @@ function addTodo()  {
 
 }
 
-
 function removeTodo(e) {
-  if (e.target.className === 'delete-todo') { 
-    lists = lists.filter(list => list._id !== e.target.getAttribute('data-list-id'));
+  if (e.target.className === 'delete-todo' ) { 
+    console.log(lists);
+    const id = e.target.getAttribute('data-list-id');
+    const todoToRemove = lists.filter(list => list._id === id)
+    lists = lists.filter(list => list._id !== id);
+
+    if (todoToRemove[0]._projectId) {
+      for (let i = 0; i < projectslist.length; i++) {      
+          projectslist[i]._list =  projectslist[i]._list.filter(project => project._id !== id);   
+      }
+      saveProject();
+
+    };
     
     saveTodo();
 
@@ -113,14 +138,16 @@ export function showTodo(list = lists) {
     //for each todo create the elements 
     const todo = document.createElement('div');
     const deleteTodo = document.createElement('button');
-    deleteTodo.classList.add('delete-todo');
-    const title = document.createElement('p');
-    const date = document.createElement('p');
-    const modify = document.createElement('modify');
+    const titleTodo = document.createElement('p');
+    const dateTodo = document.createElement('p');
+    const editTodo = document.createElement('button');
 
-    modify.textContent = '✎';
-    title.textContent = list._title;
-    date.textContent = list._dueDate;
+    deleteTodo.classList.add('delete-todo');
+    editTodo.classList.add('edit-todo')
+
+    editTodo.textContent = '✎';
+    titleTodo.textContent = list._title;
+    dateTodo.textContent = list._dueDate;
 
     //change background color of todo based on priority
     const priority = list._priority;
@@ -137,14 +164,16 @@ export function showTodo(list = lists) {
     deleteTodo.textContent = "✕";
     // set the id in the delete button for remove the todo
     deleteTodo.dataset.listId = list._id;
-    const edit = document.createElement('div');
-    edit.classList.add('edit');
-    edit.appendChild(modify);
-    edit.appendChild(deleteTodo);
+    editTodo.dataset.listId = list._id;
+    
+    const editAndDelete = document.createElement('div');
+    editAndDelete.classList.add('edit-delete');
+    editAndDelete.appendChild(editTodo);
+    editAndDelete.appendChild(deleteTodo);
 
-    todo.appendChild(title);
-    todo.appendChild(date);
-    todo.appendChild(edit);
+    todo.appendChild(titleTodo);
+    todo.appendChild(dateTodo);
+    todo.appendChild(editAndDelete);
 
     todo.classList.add('todos');
 
@@ -152,6 +181,23 @@ export function showTodo(list = lists) {
   })
 }
 
+function editTodo (e) {
+  if (e.target.className === 'edit-todo') {
+
+    const id = e.target.getAttribute('data-list-id');
+    const todoToEdit = lists.filter(list => list._id === id);
+
+    menageForm()
+
+    title.value = todoToEdit[0]._title;
+    dueDate.value = todoToEdit[0]._dueDate;
+    priority.value = todoToEdit[0]._priority;
+    project.value = todoToEdit[0]._project;
+    lists = lists.filter(list => list._id !== id);
+  }
+}
+
+// choose a project where to add the todo
 function optionList() {
   removeChild(selectPojectList);
   const defaultOption = document.createElement('option');
@@ -166,14 +212,13 @@ function optionList() {
   }
 }
 
-
 //remove child everytime 
 function removeChild(element) {
   while (element.firstChild) {
     element.removeChild(element.firstChild)
   }
 }
-
+//set page in the sidebar
 function setPage(page) {
   today.id = '';
   home.id = '';
@@ -184,14 +229,20 @@ function setPage(page) {
   page.id = 'active';
 }
 
-
-
-addTodoButton.addEventListener('click', () => menageForm());
-//remove todo form
-cancelTodo.addEventListener('click', () => todoForm.classList.add('remove-form'));
 submitTodo.addEventListener('click', () => addTodo());
+addTodoButton.addEventListener('click', () => menageForm());
+todosContainer.addEventListener('click', (e) => editTodo(e));
 todosContainer.addEventListener('click', (e) => removeTodo(e));
 
+//remove todo form
+cancelTodo.addEventListener('click', () => {
+  errorMessage.textContent = '';
+  todoForm.classList.add('remove-form')
+  title.value = '';
+  dueDate.value = '';
+  priority.value = '';
+  project.value = '';
+});
 
 home.addEventListener('click', () => {
   setPage(home);
@@ -212,7 +263,6 @@ week.addEventListener('click', () => {
 
 
 projects.addEventListener('click', () => setPage(projects));
-
 
 home.id = 'active';
 showTodo();
