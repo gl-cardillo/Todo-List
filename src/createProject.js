@@ -1,13 +1,14 @@
 const LOCAL_STORAGE_PROJECT_KEY = 'task.project';
 export let projectslist = JSON.parse(localStorage.getItem(LOCAL_STORAGE_PROJECT_KEY)) || [];
 
-const addProjectButton = document.querySelector('.add-projects-button');
-const projectForm = document.querySelector('.project-form-container');
-const todoForm = document.querySelector('.todo-form-container');
+
+const projects = document.querySelector('.projects-section');
 const cancelButton = document.querySelector('#cancel-project');
 const submitButton = document.querySelector('#submit-project');
-const projects = document.querySelector('.projects-section');
+const todoForm = document.querySelector('.todo-form-container');
 const todosContainer = document.querySelector('.todo-container');
+const projectForm = document.querySelector('.project-form-container');
+const addProjectButton = document.querySelector('.add-projects-button');
 
 function Project (id, name) {
   this._id = id;
@@ -42,7 +43,7 @@ export function saveProject() {
 
 function removeProject(e) {
   
-  if (e.target.className === 'deleteProject') { 
+  if (e.target.className === 'delete-project') { 
 
     projectslist = projectslist.filter(project => project._id !== e.target.getAttribute('data-list-id'))
     saveProject();
@@ -55,33 +56,37 @@ function showProjects() {
   removeChild(todosContainer)
 
   projectslist.forEach(projects => {
-    const project = document.createElement('div');
-    const projectContainer = document.createElement('div');
-    project.classList.add('projects');
-    projectContainer.classList.add('project-container');
-
     const name = document.createElement('p');
+    const project = document.createElement('div');   
+    const editProject = document.createElement('div');
     const deleteProject = document.createElement('button');
-    deleteProject.classList.add('deleteProject')
-    const todoListInProject = document.createElement('button');
+    const todoInProjectContainer = document.createElement('div');
+    const projectAndTodoContainer = document.createElement('div');
+    const buttonShowtodoInProjectContainer = document.createElement('button');
 
-    todoListInProject.classList.add('showTodo');
-    todoListInProject.textContent = '⌄';
-    deleteProject.textContent = 'x';
-
-    todoListInProject.dataset.listId = projects._id;
-    deleteProject.dataset.listId = projects._id;
-    projectContainer.dataset.listId = projects._id;
-
+    project.classList.add('projects');
+    deleteProject.classList.add('delete-project')
+    buttonShowtodoInProjectContainer.classList.add('show-todo');
+    projectAndTodoContainer.classList.add('project-and-todo-container')
+    
     name.textContent = projects._name;
+    deleteProject.textContent = 'x';
+    buttonShowtodoInProjectContainer.textContent = '⌄';
     
+    deleteProject.dataset.listId = projects._id;
+    todoInProjectContainer.dataset.listId = `${projects._id}--`;
+    buttonShowtodoInProjectContainer.dataset.listId = projects._id;
+
+   
+    editProject.appendChild(buttonShowtodoInProjectContainer);
+    editProject.appendChild(deleteProject);
     project.appendChild(name);
-    project.appendChild(todoListInProject);
-    project.appendChild(deleteProject);
-    projectContainer.appendChild(project)
-    todosContainer.appendChild(projectContainer)
- 
-    
+    project.appendChild(editProject);
+
+    projectAndTodoContainer.appendChild(project);
+    projectAndTodoContainer.appendChild(todoInProjectContainer);
+
+    todosContainer.appendChild(projectAndTodoContainer);
   })
   console.log(projectslist);
 }
@@ -92,38 +97,47 @@ function removeChild(element) {
   }
 }
 
-function showTodoInProject (e) {
-  const id = e.target.getAttribute('data-list-id')
-  const project = document.querySelector(`[data-list-id="${id}--"] `);
-  console.log(project)
+function showtodoInProjectContainer (e) {
+
+    const id = e.target.getAttribute('data-list-id');
+    const todoInProjectContainer = document.querySelector(`[data-list-id="${id}--"] `);
+
+    if (e.target.className === 'show-todo active') {
+
+      removeChild(todoInProjectContainer);
+      e.target.classList.remove('active');
 
 
-  if (e.target.className === 'showTodo') { 
-    const todoInproject = projectslist.filter(project => project._id === e.target.getAttribute('data-list-id'));
-    console.log(todoInproject[0]._list);
-    for (let i= 0; i < todoInproject[0]._list.length; i++) { 
-   
+    } else if (e.target.className === 'show-todo') { 
+  
+      e.target.classList.add('active')      
+      const todoInProject = projectslist.filter(project => project._id === e.target.getAttribute('data-list-id'));
+    
+      for (let i= 0; i < todoInProject[0]._list.length; i++) { 
+    
         const todoTitle = document.createElement('p');
         const dueDate = document.createElement('p');
-  
-        todoTitle.textContent = todoInproject[0]._list[i]._title;
-        dueDate.textContent = todoInproject[0]._list[i]._dueDate;
-        
-        const projectsTodo = document.createElement('div');
     
-        projectsTodo.appendChild(todoTitle);
-        projectsTodo.appendChild(dueDate);
-        projectsTodo.classList.add('project-todo')
- 
+        todoTitle.textContent = todoInProject[0]._list[i]._title;
+        dueDate.textContent = todoInProject[0]._list[i]._dueDate;
+
+        const todoDetails = document.createElement('div');
+        todoDetails.classList.add('todo-details');
+
+        todoDetails.appendChild(todoTitle);
+        todoDetails.appendChild(dueDate);
+      
+        todoInProjectContainer.appendChild(todoDetails);
+      
     }
 
   }
 }
 
-projects.addEventListener('click',() => showProjects())
+projects.addEventListener('click',() => showProjects());
 submitButton.addEventListener('click', () => addProject());
 todosContainer.addEventListener('click', (e) => removeProject(e));
-todosContainer.addEventListener('click', (e) => showTodoInProject(e));
+todosContainer.addEventListener('click', (e) => showtodoInProjectContainer(e));
 cancelButton.addEventListener('click', () => projectForm.classList.add('remove-form'));
 
 
@@ -132,6 +146,6 @@ addProjectButton.addEventListener('click', () => {
  
   projectForm.classList.remove('remove-form');
   projectForm.classList.add('active-form');
-  todoForm.classList.add('remove-form')
+  todoForm.classList.add('remove-form');
  
 })

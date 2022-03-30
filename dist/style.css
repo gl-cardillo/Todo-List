@@ -85,7 +85,7 @@ footer {
 .main-content {
   padding: 30px;
   display: grid;
-  grid-template-columns:  1fr 2fr 1fr;
+  grid-template-columns:  1fr 8fr 1fr;
   gap: 10px;
 
 }
@@ -96,7 +96,7 @@ footer {
   display: none;
 }
 
-.project-container {
+.project-and-todo-container {
   padding: 5px 10px;
   border: 2px solid white;
   color: white;
@@ -108,6 +108,7 @@ footer {
   flex-direction: column;
   justify-content: space-between;
 }
+
 
 .project-form {
   display: flex;
@@ -125,21 +126,33 @@ footer {
   display: flex;
   justify-content: space-between;
   font-size: 35px;
-}
-
-.project-todo {
-  display: flex;
-  font-size: 18px;
-  justify-content: space-between;
+  padding: 0 10px;
 }
 
 
-.deleteProject {
+.delete-project {
   background-color: rgb(20, 20, 20);
   color: white;
   border: 0;
-  font-size: 24px;
+  font-size: 26px;
+  margin-left: 10px;
 }
+
+.show-todo {
+  background-color: rgb(20, 20, 20);
+  color: white;
+  border: 0;
+  font-size: 26px;
+}
+
+.todo-details {
+  display: flex;
+  font-size: 18px;
+  justify-content: space-between;
+  padding-top: 10px;
+}
+
+
 
 
 .todo-form-container {
