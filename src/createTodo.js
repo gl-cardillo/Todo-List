@@ -25,6 +25,9 @@ const selectPojectList = document.querySelector('#project-list');
 const todosContainer = document.querySelector('.todo-container');
 const projectForm = document.querySelector('.project-form-container');
 
+//store id for todo to edit
+let temporaryTodoEditId = null;
+
 function  Todo(id, title, dueDate, priority )  {
   this._id = id;  
   this._title = title;
@@ -52,14 +55,13 @@ function menageForm() {
 function addTodo()  {
 
   const id = Date.now().toString();
+  lists = lists.filter(list => list._id !== temporaryTodoEditId);  
 
   if ( title.value === '') {
     errorMessage.textContent = 'required';
-    console.log(errorMessage)
     return
   }
     errorMessage.textContent = '';
-
 
   for (let i = 0; i < lists.length; i++) {
     if (lists[i]._title === title.value) {
@@ -92,12 +94,12 @@ function addTodo()  {
   priority.value = '';
   project.value = '';
   todoForm.classList.add('remove-form');
+  setPage(home);
 
 }
 
 function removeTodo(e) {
   if (e.target.className === 'delete-todo' ) { 
-    console.log(lists);
     const id = e.target.getAttribute('data-list-id');
     const todoToRemove = lists.filter(list => list._id === id)
     lists = lists.filter(list => list._id !== id);
@@ -124,8 +126,7 @@ function removeTodo(e) {
   }
 }
 
-
-function saveTodo() {
+export function saveTodo() {
   localStorage.setItem(LOCAL_STORAGE_LIST_KEY, JSON.stringify(lists))
 }
 
@@ -178,22 +179,22 @@ export function showTodo(list = lists) {
     todo.classList.add('todos');
 
     todosContainer.appendChild(todo);
+
   })
 }
 
 function editTodo (e) {
   if (e.target.className === 'edit-todo') {
 
-    const id = e.target.getAttribute('data-list-id');
-    const todoToEdit = lists.filter(list => list._id === id);
+    temporaryTodoEditId = e.target.getAttribute('data-list-id');
+    const todoToEdit = lists.filter(list => list._id === temporaryTodoEditId);
 
     menageForm()
-
     title.value = todoToEdit[0]._title;
     dueDate.value = todoToEdit[0]._dueDate;
     priority.value = todoToEdit[0]._priority;
     project.value = todoToEdit[0]._project;
-    lists = lists.filter(list => list._id !== id);
+
   }
 }
 
@@ -255,10 +256,10 @@ today.addEventListener('click', () => {
   showTodo(lists.filter(list => list._dueDate === format(new Date(), "yyyy-MM-dd")) );
 });
 
-
 week.addEventListener('click', () => {
-  setPage(week);
-  showTodo(lists.filter(list => list._dueDate < format(addWeeks(new Date(), 1), "yyyy-MM-dd")));
+  setPage(week); 
+  showTodo(lists.filter(list =>  list._dueDate !== "" && list._dueDate < format(addWeeks(new Date(), 1), "yyyy-MM-dd")));
+
 });
 
 
